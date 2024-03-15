@@ -1,17 +1,18 @@
-import { useAtom } from "jotai"
-import { atomWithStorage, createJSONStorage } from "jotai/utils"
+import { useAtom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+import React from 'react'
 
-import "./popup.css"
+import './popup.css'
 
-const strAtom = atomWithStorage("count", 0)
+const strAtom = atomWithStorage('count', 0)
 
-function IndexPopup() {
+function IndexPopup(): React.ReactElement {
   const [count, setCount] = useAtom(strAtom)
 
-  function captureSS() {
-    chrome.windows.create({
-      url: `${chrome.runtime.getURL("popup.html")}?page=recorder`,
-      type: "popup",
+  function captureSS(): void {
+    void chrome.windows.create({
+      url: `${chrome.runtime.getURL('popup.html')}?page=recorder`,
+      type: 'popup',
       focused: true,
       height: 200,
       width: 400,
@@ -29,26 +30,32 @@ function IndexPopup() {
   //   document.addEventListener("visibilitychange", resetStorage)
   //   return () => document.removeEventListener("visibilitychange", resetStorage)
   // }, [])
-  if (window.location.search)
+  if (window.location.search.length > 0) {
     return (
       <>
-        <h1 className="text-xl">Recorder Controls Page</h1>
-        <button className="p-3 bg-gray-600" onClick={() => setCount(count + 1)}>
+        <h1 className='text-xl'>Recorder Controls Page</h1>
+        <button
+          className='p-3 bg-gray-600'
+          onClick={() => {
+            setCount(count + 1)
+          }}
+        >
           Trigger state change
         </button>
       </>
     )
-  else
+  } else {
     return (
       <>
-        <h1 className="text-2xl text-blue-800">
+        <h1 className='text-2xl text-blue-800'>
           Main Extension Page, Counter: {count}
         </h1>
-        <button onClick={captureSS} className="p-3 bg-gray-600">
+        <button onClick={captureSS} className='p-3 bg-gray-600'>
           Open Recorder UI
         </button>
       </>
     )
+  }
 }
 
 export default IndexPopup

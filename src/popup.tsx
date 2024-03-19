@@ -1,59 +1,49 @@
-import { useAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import './popup.css'
 
-const strAtom = atomWithStorage('count', 0)
+import { useAtom } from 'jotai'
+
+import { configAtom } from './atoms/config'
+import { Recorder } from './components/recorder'
+import Example from './components/select'
 
 function IndexPopup(): React.ReactElement {
-  const [count, setCount] = useAtom(strAtom)
-
+  const [config, setConfig] = useAtom(configAtom)
+  useEffect(() => {
+    setConfig({ ...config, windowId: 0 })
+  }, [])
   function captureSS(): void {
-    void chrome.windows.create({
-      url: `${chrome.runtime.getURL('popup.html')}?page=recorder`,
-      type: 'popup',
-      focused: true,
-      height: 200,
-      width: 400,
-      left: 20,
-      top: window.innerHeight * 0.8
-
-      /* can also set width/height here, see docs */
-    })
+    if (config.windowId !== 0) {
+      void chrome.windows.update(config.windowId, { focused: true })
+    } else {
+      void chrome.windows
+        .create({
+          url: `${chrome.runtime.getURL('popup.html')}?page=recorder`,
+          type: 'popup',
+          focused: true,
+          height: 600,
+          width: 800,
+          left: 20,
+          top: window.innerHeight * 0.8
+        })
+        .then((s) => {
+          setConfig({ ...config, windowId: s.id ?? 0 })
+        })
+    }
   }
-  // useEffect(() => {
-  //   function resetStorage() {
-  //     if (window.location.search) return
-  //     alert("Going to close now!")
-  //   }
-  //   document.addEventListener("visibilitychange", resetStorage)
-  //   return () => document.removeEventListener("visibilitychange", resetStorage)
-  // }, [])
   if (window.location.search.length > 0) {
-    return (
-      <>
-        <h1 className='text-xl'>Recorder Controls Page</h1>
-        <button
-          className='p-3 bg-gray-600'
-          onClick={() => {
-            setCount(count + 1)
-          }}
-        >
-          Trigger state change
-        </button>
-      </>
-    )
+    return <Recorder />
   } else {
     return (
-      <>
-        <h1 className='text-2xl text-blue-800'>
-          Main Extension Page, Counter: {count}
-        </h1>
-        <button onClick={captureSS} className='p-3 bg-gray-600'>
-          Open Recorder UI
+      <main className='w-[600px] h-[600px]'>
+        <h1 className='text-2xl text-blue-800'>OpenStream</h1>
+        <Example />
+
+        <button className='p-3 mt-4 bg-gray-600' onClick={captureSS}>
+          Open Recorder
         </button>
-      </>
+      </main>
     )
   }
 }

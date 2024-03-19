@@ -25,5 +25,11 @@ module.exports = {
     '@typescript-eslint/space-before-function-paren': 'off',
     'multiline-ternary': 'off'
   },
-  ignorePatterns: '.eslintrc.js'
+
+  ignorePatterns: [
+    '.eslintrc.js',
+    'tailwind.config.js',
+    'postcss.config.js',
+    'build/*'
+  ]
 }
